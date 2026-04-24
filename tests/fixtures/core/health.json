@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/health",
+    "path_pattern": "/api/health",
+    "tenant": "throwaway"
+  },
+  "response_body": {
+    "data": {
+      "source": "fixture",
+      "status": "ok"
+    },
+    "ok": true
+  },
+  "response_headers": {
+    "content-type": "application/json"
+  },
+  "response_status": 200
+}

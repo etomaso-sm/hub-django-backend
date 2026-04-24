@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/__capture/safe-007",
+    "path_pattern": "/api/__capture/safe-007",
+    "tenant": "throwaway"
+  },
+  "response_body": {
+    "data": {
+      "name": "safe_007",
+      "source": "fixture"
+    },
+    "ok": true
+  },
+  "response_headers": {
+    "content-type": "application/json"
+  },
+  "response_status": 200
+}
