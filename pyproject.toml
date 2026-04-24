@@ -1,0 +1,81 @@
+[project]
+name = "hub"
+version = "0.1.0"
+description = "Sprint Mode Hub - Django + DRF backend (migration target)"
+readme = "README_BACKEND.md"
+requires-python = ">=3.11"
+authors = [{ name = "Eugenio de Tomaso", email = "etomaso@sprintmode.co" }]
+dependencies = [
+  "django>=5.0,<6.0",
+  "djangorestframework>=3.15",
+  "psycopg[binary]>=3.2",
+  "django-redis>=5.4",
+  "celery>=5.4",
+  "channels>=4.1",
+  "channels-redis>=4.2",
+  "pgvector>=0.3",
+  "pydantic>=2.8",
+  "python-dotenv>=1.0",
+  "daphne>=4.1",
+  "uvicorn>=0.30",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.6",
+  "black>=24.8",
+  "mypy>=1.11",
+  "pytest>=8.3",
+  "pytest-django>=4.9",
+  "pytest-asyncio>=0.23",
+  "responses>=0.25",
+  "freezegun>=1.5",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["hub"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = []
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+extend-exclude = '''
+/(
+    \.venv
+  | migrations
+)/
+'''
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+exclude = ["migrations/", ".venv/"]
+
+[[tool.mypy.overrides]]
+module = "hub.settings.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "django.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "hub.settings.test"
+python_files = ["test_*.py", "tests.py"]
+addopts = "-q"
