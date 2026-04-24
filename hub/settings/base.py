@@ -84,4 +84,5 @@ REST_FRAMEWORK: dict[str, object] = {
         "apps.common.renderers.HubJSONRenderer",
     ],
     "EXCEPTION_HANDLER": "apps.common.exceptions.hub_exception_handler",
+    "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.HubLimitPagination",
 }
