@@ -33,6 +33,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Hub tenant resolution from ?tenant=<id>. Runs after auth so views can
+    # cross-check request.user against request.tenant_id if needed.
+    "apps.common.middleware.tenant.TenantMiddleware",
 ]
 
 ROOT_URLCONF = "hub.urls"
