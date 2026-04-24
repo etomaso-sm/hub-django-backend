@@ -1,0 +1,52 @@
+routes:
+  - app: core
+    name: health
+    method: GET
+    path: /api/health
+    safe: true
+  - app: labs
+    name: manifest
+    method: GET
+    path: /api/labs/manifest
+    safe: true
+  - app: capture_safe
+    name: safe_001
+    method: GET
+    path: /api/__capture/safe-001
+    safe: true
+  - app: capture_safe
+    name: safe_002
+    method: GET
+    path: /api/__capture/safe-002
+    safe: true
+  - app: capture_safe
+    name: safe_003
+    method: GET
+    path: /api/__capture/safe-003
+    safe: true
+  - app: capture_safe
+    name: safe_004
+    method: GET
+    path: /api/__capture/safe-004
+    safe: true
+  - app: capture_safe
+    name: safe_005
+    method: GET
+    path: /api/__capture/safe-005
+    safe: true
+  - app: capture_safe
+    name: safe_006
+    method: GET
+    path: /api/__capture/safe-006
+    safe: true
+  - app: capture_safe
+    name: safe_007
+    method: GET
+    path: /api/__capture/safe-007
+    safe: true
+  - app: stream
+    name: smoke_events
+    method: GET
+    path: /api/__capture/events
+    safe: true
+    sse: true

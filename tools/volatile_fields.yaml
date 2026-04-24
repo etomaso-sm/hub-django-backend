@@ -1,0 +1,7 @@
+"/api/health":
+  - "$.data.timestamp"
+  - "$.data.request_id"
+"/api/__capture/safe-001":
+  - "$.data.timestamp"
+"/api/__capture/safe-002":
+  - "$.data.timestamp"
