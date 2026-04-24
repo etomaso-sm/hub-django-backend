@@ -20,6 +20,7 @@ Explicit failures (invalid JWT, expired session, unknown email) raise
 ``AuthenticationFailed`` so DRF returns a 401 with the envelope.
 """
 
+from importlib import import_module
 from typing import Any, cast
 
 import jwt
@@ -28,8 +29,10 @@ from django.utils import timezone
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
-from apps.auth.models import People, Session
+from apps.auth.models import People
 from apps.common.jwks import verify_cf_access_jwt
+
+SessionModel: Any = getattr(import_module("apps.auth.models"), "Session", None)
 
 
 class HubAuthentication(BaseAuthentication):  # type: ignore[misc]  # DRF untyped
@@ -93,9 +96,11 @@ class HubAuthentication(BaseAuthentication):  # type: ignore[misc]  # DRF untype
         token = request.COOKIES.get(cookie_name)
         if not token:
             return None
+        if SessionModel is None:
+            raise AuthenticationFailed("session_backend_unavailable")
         try:
-            session = Session.objects.select_related("person").get(token=token)
-        except Session.DoesNotExist as exc:
+            session = SessionModel.objects.select_related("person").get(token=token)
+        except SessionModel.DoesNotExist as exc:
             raise AuthenticationFailed("session_invalid") from exc
         if session.expires_at < timezone.now():
             raise AuthenticationFailed("session_expired")
