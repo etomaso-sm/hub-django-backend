@@ -40,6 +40,9 @@ MIDDLEWARE = [
     # Superadmin-only ?impersonate=<email>. Runs after auth + tenant so it can
     # check request.user.role and short-circuit with a 403 envelope response.
     "apps.common.middleware.impersonation.ImpersonationMiddleware",
+    # x-xray-session passthrough + structured per-request log. Runs last so
+    # the log record captures the final response status and duration.
+    "apps.common.middleware.xray.XraySessionMiddleware",
 ]
 
 ROOT_URLCONF = "hub.urls"
@@ -92,4 +95,30 @@ REST_FRAMEWORK: dict[str, object] = {
     ],
     "EXCEPTION_HANDLER": "apps.common.exceptions.hub_exception_handler",
     "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.HubLimitPagination",
+}
+
+# Structured JSON logging for request records. TKT-071 adds a Grafana Cloud
+# OTLP handler behind a TelemetrySink abstraction; until then, records go to
+# stdout where the docker-compose log aggregator picks them up.
+LOGGING: dict[str, object] = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "hub_json": {
+            "()": "apps.common.logging.JsonFormatter",
+        },
+    },
+    "handlers": {
+        "console_json": {
+            "class": "logging.StreamHandler",
+            "formatter": "hub_json",
+        },
+    },
+    "loggers": {
+        "hub.request": {
+            "handlers": ["console_json"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
 }
