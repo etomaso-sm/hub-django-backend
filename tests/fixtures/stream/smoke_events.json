@@ -1,0 +1,27 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/__capture/events",
+    "path_pattern": "/api/__capture/events",
+    "tenant": "throwaway"
+  },
+  "response_events": [
+    {
+      "data": {
+        "source": "fixture",
+        "status": "started"
+      },
+      "event": "status",
+      "ts_offset_ms": 0
+    },
+    {
+      "data": "[DONE]",
+      "event": "done",
+      "ts_offset_ms": 50
+    }
+  ],
+  "response_headers": {
+    "content-type": "text/event-stream"
+  },
+  "response_status": 200
+}

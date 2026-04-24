@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/labs/manifest",
+    "path_pattern": "/api/labs/manifest",
+    "tenant": "throwaway"
+  },
+  "response_body": {
+    "data": {
+      "features": [],
+      "source": "fixture"
+    },
+    "ok": true
+  },
+  "response_headers": {
+    "content-type": "application/json"
+  },
+  "response_status": 200
+}
