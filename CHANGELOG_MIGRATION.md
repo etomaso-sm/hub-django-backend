@@ -1,5 +1,6 @@
 # Migration Changelog
 
+- TKT-018: Added sanitized local seed fixture and deterministic seed sanitizer.
 - TKT-017: Added local Playwright harness, helpers, example spec, and per-ticket verify template.
 - TKT-015: Added contract-diff helper with unified JSON diffs and volatile field support.
 - TKT-014: Added manifest fixture coverage gate and deterministic golden fixtures for the current manifest.

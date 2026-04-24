@@ -4,7 +4,7 @@
 
 COMPOSE := docker compose -f local-dev/docker-compose.yml
 
-.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-ticket
+.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-TKT-018 verify-ticket
 
 local-up:
 	python local-dev/caddy/build_caddyfile.py
@@ -23,7 +23,7 @@ local-migrate:
 	$(COMPOSE) exec django python manage.py migrate
 
 local-seed:
-	$(COMPOSE) exec django python manage.py loaddata fixtures/dev_seed.json
+	$(COMPOSE) exec django python manage.py loaddata fixtures/seed_hub_sprint_mode.json
 
 reload-routing:
 	python local-dev/caddy/build_caddyfile.py
@@ -59,6 +59,10 @@ verify-TKT-015:
 verify-TKT-017:
 	npm --prefix local-dev/playwright ci
 	npm --prefix local-dev/playwright exec playwright -- test --config local-dev/playwright/playwright.config.ts local-dev/playwright/tickets/TKT-EXAMPLE.spec.ts
+
+verify-TKT-018:
+	pytest tests/test_seed_sanitized.py
+	python tools/capture_seed.py --output /tmp/hub-seed-smoke.json
 
 verify-ticket:
 	@test -n "$(TKT)" || (echo "usage: make verify-ticket TKT=TKT-XXX" && exit 2)
