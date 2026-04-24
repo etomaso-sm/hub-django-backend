@@ -37,6 +37,9 @@ MIDDLEWARE = [
     # Hub tenant resolution from ?tenant=<id>. Runs after auth so views can
     # cross-check request.user against request.tenant_id if needed.
     "apps.common.middleware.tenant.TenantMiddleware",
+    # Superadmin-only ?impersonate=<email>. Runs after auth + tenant so it can
+    # check request.user.role and short-circuit with a 403 envelope response.
+    "apps.common.middleware.impersonation.ImpersonationMiddleware",
 ]
 
 ROOT_URLCONF = "hub.urls"
