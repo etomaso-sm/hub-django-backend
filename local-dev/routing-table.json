@@ -1,0 +1,7 @@
+{
+  "_comment": "Local strangler routing table. 'target' is 'django' (port 8000) or 'mock' (port 8787). As port tickets land they flip entries from 'mock' to 'django'. Order matters: first match wins, so most-specific paths come FIRST. Wildcards use '*' (Caddy's path matcher).",
+  "routes": [
+    { "path": "/api/_smoke/*", "target": "django", "note": "TKT-022 smoke endpoint" },
+    { "path": "/api/*", "target": "mock", "note": "default: route everything not-yet-ported to mock-legacy" }
+  ]
+}
