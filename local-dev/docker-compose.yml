@@ -38,6 +38,23 @@ services:
       timeout: 3s
       retries: 5
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: hub_caddy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - django
+    # mock-legacy is an optional dep added in TKT-012; caddy will fail fast
+    # on a request to /api/* until TKT-012 ships.
+    healthcheck:
+      test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   django:
     build:
       context: ..
