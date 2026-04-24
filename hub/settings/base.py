@@ -98,7 +98,26 @@ REST_FRAMEWORK: dict[str, object] = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "apps.auth.authentication.HubAuthentication",
     ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "apps.common.permissions.IsAuthenticatedOrPublic",
+    ],
 }
+
+# Paths that skip the global IsAuthenticatedOrPublic check. fnmatch patterns
+# (``?``, ``*``, ``[abc]``). The 9 locked in the analysis doc:
+PUBLIC_URL_PATTERNS: list[str] = [
+    "/api/health",
+    "/api/health/*",
+    "/api/signup",
+    "/api/waitlist",
+    "/api/onboarding/waitlist",
+    "/api/labs/manifest",
+    "/webhooks/stripe/*",
+    "/webhooks/privacy/*",
+    "/portal/*",
+    "/booking/*",
+    "/a2a/*",
+]
 
 # Hub auth knobs. All overridable per-env.
 SESSION_COOKIE_NAME = "hub_session"
