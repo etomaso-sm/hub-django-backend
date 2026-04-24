@@ -1,0 +1,70 @@
+# Sprint Mode Hub local dev stack.
+#
+# TKT-010 ships postgres + redis + django. Later tickets add:
+#   TKT-011  caddy reverse proxy (local strangler)
+#   TKT-012  mock-legacy worker (fixture replay)
+#   TKT-017  frontend dev server (vite against localhost)
+#
+# Running from the repo root:
+#   make local-up
+#   make local-down
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: hub_postgres
+    environment:
+      POSTGRES_USER: hub
+      POSTGRES_PASSWORD: hub
+      POSTGRES_DB: hub
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hub -d hub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: hub_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  django:
+    build:
+      context: ..
+      dockerfile: local-dev/Dockerfile.django
+    container_name: hub_django
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://hub:hub@postgres:5432/hub
+      REDIS_URL: redis://redis:6379/0
+      DJANGO_SECRET_KEY: dev-insecure-change-me
+      DJANGO_SETTINGS_MODULE: hub.settings.dev
+      DEV_BYPASS_AUTH_AS_EMAIL: ${DEV_BYPASS_AUTH_AS_EMAIL:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/app
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/admin/"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
+volumes:
+  pgdata:
