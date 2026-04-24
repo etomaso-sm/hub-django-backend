@@ -95,7 +95,22 @@ REST_FRAMEWORK: dict[str, object] = {
     ],
     "EXCEPTION_HANDLER": "apps.common.exceptions.hub_exception_handler",
     "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.HubLimitPagination",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.auth.authentication.HubAuthentication",
+    ],
 }
+
+# Hub auth knobs. All overridable per-env.
+SESSION_COOKIE_NAME = "hub_session"
+# Populate CF_ACCESS_* in prod settings when CF Access is wired up.
+CF_ACCESS_TEAM: str | None = None
+CF_ACCESS_AUD: str | None = None
+CF_ACCESS_JWKS_URL: str | None = None
+# {token_value: email} for service-to-service auth.
+SERVICE_TOKENS: dict[str, str] = {}
+# DEBUG-only bypass: when DEBUG is True and this is set, HubAuthentication
+# resolves the email to a People row on every request. Never set in prod.
+DEV_BYPASS_AUTH_AS_EMAIL: str | None = None
 
 # Structured JSON logging for request records. TKT-071 adds a Grafana Cloud
 # OTLP handler behind a TelemetrySink abstraction; until then, records go to
