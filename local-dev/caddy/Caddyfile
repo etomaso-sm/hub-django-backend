@@ -17,14 +17,44 @@
 	@preflight method OPTIONS
 	respond @preflight 204
 
-	@r0 path /api/_smoke/*
+	@r0 path /api/tenants
 	reverse_proxy @r0 django:8000 {
 		flush_interval -1
 		header_up X-Hub-Router django
 	}
 
-	@r1 path /api/*
-	reverse_proxy @r1 mock-legacy:8787 {
+	@r1 path /api/_smoke/*
+	reverse_proxy @r1 django:8000 {
+		flush_interval -1
+		header_up X-Hub-Router django
+	}
+
+	@r2 path /api/signup
+	reverse_proxy @r2 django:8000 {
+		flush_interval -1
+		header_up X-Hub-Router django
+	}
+
+	@r3 path /api/auth/*
+	reverse_proxy @r3 django:8000 {
+		flush_interval -1
+		header_up X-Hub-Router django
+	}
+
+	@r4 path /api/hub/*
+	reverse_proxy @r4 django:8000 {
+		flush_interval -1
+		header_up X-Hub-Router django
+	}
+
+	@r5 path /api/me
+	reverse_proxy @r5 django:8000 {
+		flush_interval -1
+		header_up X-Hub-Router django
+	}
+
+	@r6 path /api/*
+	reverse_proxy @r6 mock-legacy:8787 {
 		flush_interval -1
 		header_up X-Hub-Router mock
 	}
