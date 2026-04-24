@@ -4,7 +4,7 @@
 
 COMPOSE := docker compose -f local-dev/docker-compose.yml
 
-.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014
+.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015
 
 local-up:
 	python local-dev/caddy/build_caddyfile.py
@@ -52,3 +52,6 @@ verify-TKT-013:
 
 verify-TKT-014:
 	pytest tests/fixtures/test_manifest_coverage.py
+
+verify-TKT-015:
+	pytest tests/contract/test_template.py
