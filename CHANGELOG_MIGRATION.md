@@ -1,5 +1,6 @@
 # Migration Changelog
 
+- TKT-022: Added authenticated smoke endpoint, refreshed the seed for inspectdb models, and wired full-stack Playwright verification.
 - TKT-021: Froze initial Django migrations for inspectdb-derived apps and added fake-initial verification.
 - TKT-020: Added inspectdb-derived Django model declarations split across migration apps.
 - TKT-019: Added Postgres initial schema SQL, translation notes, and Docker-backed schema verification.

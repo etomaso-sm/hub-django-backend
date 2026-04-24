@@ -32,6 +32,10 @@ class People(models.Model):
     class Meta:
         db_table = "people"
 
+    @property
+    def is_authenticated(self) -> bool:
+        return True
+
 
 class UserIdentityLinks(models.Model):
     id = models.TextField(primary_key=True)

@@ -7,6 +7,16 @@
 		format console
 	}
 
+	header {
+		Access-Control-Allow-Origin "http://localhost:5173"
+		Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+		Access-Control-Allow-Headers "Authorization, Content-Type, X-Xray-Session"
+		Access-Control-Allow-Credentials "true"
+	}
+
+	@preflight method OPTIONS
+	respond @preflight 204
+
 	@r0 path /api/_smoke/*
 	reverse_proxy @r0 django:8000 {
 		flush_interval -1

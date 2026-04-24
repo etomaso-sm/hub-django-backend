@@ -27,7 +27,8 @@ function routeSpecificity(routePath: string): number {
 export async function loginAs(page: Page, role: 'normal' | 'staff' | 'superadmin'): Promise<void> {
   await page.addInitScript((selectedRole) => {
     window.localStorage.setItem('hub_test_role', selectedRole);
-    window.localStorage.setItem('hub_user_email', `${selectedRole}@example.test`);
+    const email = selectedRole === 'superadmin' ? 'super@local.test' : `${selectedRole}@local.test`;
+    window.localStorage.setItem('hub_user_email', email);
   }, role);
 }
 

@@ -8,6 +8,7 @@ from hub.settings.base import *  # noqa: F401,F403
 DEBUG = True
 SECRET_KEY = "django-insecure-dev-key-only"
 ALLOWED_HOSTS = ["*"]
+DEV_BYPASS_AUTH_AS_EMAIL = os.getenv("DEV_BYPASS_AUTH_AS_EMAIL") or None
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
