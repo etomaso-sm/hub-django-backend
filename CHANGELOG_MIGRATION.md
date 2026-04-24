@@ -1,5 +1,6 @@
 # Migration Changelog
 
+- TKT-021: Froze initial Django migrations for inspectdb-derived apps and added fake-initial verification.
 - TKT-020: Added inspectdb-derived Django model declarations split across migration apps.
 - TKT-019: Added Postgres initial schema SQL, translation notes, and Docker-backed schema verification.
 - TKT-018: Added sanitized local seed fixture and deterministic seed sanitizer.
