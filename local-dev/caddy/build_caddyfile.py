@@ -17,6 +17,7 @@ Rules:
 - "django" target => reverse_proxy django:8000
 - "mock"   target => reverse_proxy mock-legacy:8787
 - SSE passthrough: flush_interval -1 disables response buffering.
+- Local CORS is enabled so the Vite frontend on localhost:5173 can call Caddy.
 """
 
 from __future__ import annotations
@@ -83,6 +84,16 @@ def generate_caddyfile(routes: list[Route]) -> str:
         "\t\toutput stdout",
         "\t\tformat console",
         "\t}",
+        "",
+        "\theader {",
+        '\t\tAccess-Control-Allow-Origin "http://localhost:5173"',
+        '\t\tAccess-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"',
+        '\t\tAccess-Control-Allow-Headers "Authorization, Content-Type, X-Xray-Session"',
+        '\t\tAccess-Control-Allow-Credentials "true"',
+        "\t}",
+        "",
+        "\t@preflight method OPTIONS",
+        "\trespond @preflight 204",
         "",
     ]
     for idx, route in enumerate(routes):

@@ -52,6 +52,9 @@ def test_generated_caddyfile_preserves_sse_and_marks_target() -> None:
     )
 
     assert "@r0 path /api/_smoke/*" in rendered
+    assert '@preflight method OPTIONS' in rendered
+    assert 'Access-Control-Allow-Origin "http://localhost:5173"' in rendered
+    assert 'Access-Control-Allow-Headers "Authorization, Content-Type, X-Xray-Session"' in rendered
     assert "reverse_proxy @r0 django:8000" in rendered
     assert "flush_interval -1" in rendered
     assert "header_up X-Hub-Router django" in rendered

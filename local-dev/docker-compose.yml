@@ -18,7 +18,7 @@ services:
       POSTGRES_PASSWORD: hub
       POSTGRES_DB: hub
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -31,7 +31,7 @@ services:
     image: redis:7-alpine
     container_name: hub_redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -42,7 +42,7 @@ services:
     image: caddy:2-alpine
     container_name: hub_caddy
     ports:
-      - "8080:8080"
+      - "${CADDY_PORT:-8080}:8080"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
     depends_on:
@@ -66,11 +66,11 @@ services:
       MOCK_LEGACY_PORT: 8787
       SSE_DELAY_MS: 50
     ports:
-      - "8787:8787"
+      - "${MOCK_LEGACY_PORT:-8787}:8787"
     volumes:
       - ..:/app:ro
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8787/__health"]
+      test: ["CMD", "wget", "-q", "-O-", "http://127.0.0.1:8787/__health"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -93,11 +93,11 @@ services:
       DEV_BYPASS_AUTH_AS_EMAIL: ${DEV_BYPASS_AUTH_AS_EMAIL:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
-      - "8000:8000"
+      - "${DJANGO_PORT:-8000}:8000"
     volumes:
       - ..:/app
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8000/admin/"]
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/admin/"]
       interval: 10s
       timeout: 3s
       retries: 10

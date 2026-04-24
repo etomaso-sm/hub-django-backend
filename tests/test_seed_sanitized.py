@@ -9,6 +9,7 @@ import pytest
 from django.core.management import call_command
 
 from apps.auth.models import People
+from apps.common.middleware.tenant import DEFAULT_TENANT, reset_current_tenant, set_current_tenant
 from tools.capture_seed import sanitize_seed
 
 SEED_PATH = Path("fixtures/seed_hub_sprint_mode.json")
@@ -64,11 +65,17 @@ def test_seed_contains_no_real_pii_patterns() -> None:
 
 
 @pytest.mark.django_db
-@pytest.mark.skip(reason="TKT-021 reloads seed data after inspectdb migrations are frozen.")
 def test_seed_loads_and_creates_required_users() -> None:
     call_command("loaddata", str(SEED_PATH), verbosity=0)
 
-    roles = cast(dict[str, str], dict(People.objects.values_list("email", "role")))
-    assert roles["normal@local.test"] == "normal"
-    assert roles["staff@local.test"] == "staff"
-    assert roles["super@local.test"] == "superadmin"
+    token = set_current_tenant(DEFAULT_TENANT)
+    try:
+        roles = cast(dict[str, str], dict(People.objects.values_list("email", "role")))
+    finally:
+        reset_current_tenant(token)
+
+    assert roles == {
+        "normal@local.test": "normal",
+        "staff@local.test": "staff",
+        "super@local.test": "superadmin",
+    }
