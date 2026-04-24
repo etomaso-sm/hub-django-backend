@@ -32,7 +32,7 @@ What will come up in later tickets:
 ```
 make local-up
 docker compose -f local-dev/docker-compose.yml exec django python manage.py migrate
-docker compose -f local-dev/docker-compose.yml exec django python manage.py loaddata fixtures/dev_seed.json
+docker compose -f local-dev/docker-compose.yml exec django python manage.py loaddata fixtures/seed_hub_sprint_mode.json
 ```
 
 Then hit `http://localhost:8000/admin/` — Django should respond (anonymous
