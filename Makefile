@@ -4,7 +4,7 @@
 
 COMPOSE := docker compose -f local-dev/docker-compose.yml
 
-.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-TKT-018 verify-TKT-019 verify-TKT-020 verify-ticket
+.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-TKT-018 verify-TKT-019 verify-TKT-020 verify-TKT-021 verify-ticket
 
 local-up:
 	python local-dev/caddy/build_caddyfile.py
@@ -125,6 +125,37 @@ verify-TKT-020:
 		python tools/verify_tkt020_models.py --inspectdb "$$inspectdb_out"
 	python manage.py check
 	mypy --strict apps/*/models.py
+
+verify-TKT-021:
+	python manage.py makemigrations --check --dry-run
+	@set -eu; \
+		container=hub_tkt021_postgres; \
+		cleanup() { docker rm -f "$$container" >/dev/null 2>&1 || true; }; \
+		cleanup; \
+		docker run --name "$$container" \
+			-e POSTGRES_USER=hub \
+			-e POSTGRES_PASSWORD=hub \
+			-e POSTGRES_DB=hub_tkt021 \
+			-p 127.0.0.1::5432 \
+			-d pgvector/pgvector:pg16 >/dev/null; \
+		trap cleanup EXIT; \
+		for _ in $$(seq 1 60); do \
+			if docker logs "$$container" 2>&1 | grep -q "PostgreSQL init process complete"; then \
+				break; \
+			fi; \
+			sleep 1; \
+		done; \
+		for _ in $$(seq 1 30); do \
+			if docker exec "$$container" pg_isready -U hub -d hub_tkt021 >/dev/null 2>&1; then \
+				break; \
+			fi; \
+			sleep 1; \
+		done; \
+		docker exec "$$container" pg_isready -U hub -d hub_tkt021 >/dev/null; \
+		docker exec -i "$$container" psql -U hub -d hub_tkt021 -v ON_ERROR_STOP=1 < migrations/initial/schema.sql >/tmp/hub-tkt021-schema-load.log; \
+		port="$$(docker inspect -f '{{(index (index .NetworkSettings.Ports "5432/tcp") 0).HostPort}}' "$$container")"; \
+		DATABASE_URL="postgres://hub:hub@127.0.0.1:$$port/hub_tkt021" python manage.py migrate --fake-initial --noinput; \
+		DATABASE_URL="postgres://hub:hub@127.0.0.1:$$port/hub_tkt021" python manage.py migrate --check
 
 verify-ticket:
 	@test -n "$(TKT)" || (echo "usage: make verify-ticket TKT=TKT-XXX" && exit 2)
