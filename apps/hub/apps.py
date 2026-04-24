@@ -1,0 +1,8 @@
+from django.apps import AppConfig
+
+
+class HubConfig(AppConfig):  # type: ignore[misc]
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.hub"
+    label = "hub_app"
+    verbose_name = "Hub core"
