@@ -4,7 +4,7 @@
 
 COMPOSE := docker compose -f local-dev/docker-compose.yml
 
-.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-TKT-018 verify-ticket
+.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-TKT-018 verify-TKT-019 verify-ticket
 
 local-up:
 	python local-dev/caddy/build_caddyfile.py
@@ -63,6 +63,35 @@ verify-TKT-017:
 verify-TKT-018:
 	pytest tests/test_seed_sanitized.py
 	python tools/capture_seed.py --output /tmp/hub-seed-smoke.json
+
+verify-TKT-019:
+	@set -eu; \
+		container=hub_tkt019_postgres; \
+		cleanup() { docker rm -f "$$container" >/dev/null 2>&1 || true; }; \
+		cleanup; \
+		docker run --name "$$container" \
+			-e POSTGRES_USER=hub \
+			-e POSTGRES_PASSWORD=hub \
+			-e POSTGRES_DB=hub_tkt019 \
+			-d pgvector/pgvector:pg16 >/dev/null; \
+		trap cleanup EXIT; \
+		for _ in $$(seq 1 60); do \
+			if docker logs "$$container" 2>&1 | grep -q "PostgreSQL init process complete"; then \
+				break; \
+			fi; \
+			sleep 1; \
+		done; \
+		for _ in $$(seq 1 30); do \
+			if docker exec "$$container" pg_isready -U hub -d hub_tkt019 >/dev/null 2>&1; then \
+				break; \
+			fi; \
+			sleep 1; \
+		done; \
+		docker exec "$$container" pg_isready -U hub -d hub_tkt019 >/dev/null; \
+		docker exec -i "$$container" psql -U hub -d hub_tkt019 -v ON_ERROR_STOP=1 < migrations/initial/schema.sql; \
+		count="$$(docker exec "$$container" psql -U hub -d hub_tkt019 -tAc "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" | tr -d '[:space:]')"; \
+		test "$$count" = "251" || (echo "expected 251 public tables from current source snapshot, got $$count" && exit 1); \
+		echo "Postgres initial schema OK ($$count public tables)"
 
 verify-ticket:
 	@test -n "$(TKT)" || (echo "usage: make verify-ticket TKT=TKT-XXX" && exit 2)

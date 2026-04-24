@@ -1,5 +1,6 @@
 # Migration Changelog
 
+- TKT-019: Added Postgres initial schema SQL, translation notes, and Docker-backed schema verification.
 - TKT-018: Added sanitized local seed fixture and deterministic seed sanitizer.
 - TKT-017: Added local Playwright harness, helpers, example spec, and per-ticket verify template.
 - TKT-015: Added contract-diff helper with unified JSON diffs and volatile field support.
