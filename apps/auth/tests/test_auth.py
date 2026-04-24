@@ -1,5 +1,6 @@
 """Tests for HubAuthentication (DRF auth backend)."""
 
+from collections.abc import Generator
 from datetime import timedelta
 from typing import Any, cast
 from unittest.mock import patch
@@ -11,23 +12,50 @@ from django.utils import timezone
 from rest_framework.exceptions import AuthenticationFailed
 
 from apps.auth.authentication import HubAuthentication
-from apps.auth.models import People
+from apps.auth.models import People, Session
+from apps.common.middleware.tenant import DEFAULT_TENANT, reset_current_tenant, set_current_tenant
 
-Session: Any = None
 
-pytestmark = pytest.mark.skip(
-    reason="TKT-020 replaces auth models from inspectdb; TKT-023 ports core auth/session."
-)
+@pytest.fixture(autouse=True)
+def tenant_context() -> Generator[None, None, None]:
+    token = set_current_tenant(DEFAULT_TENANT)
+    try:
+        yield
+    finally:
+        reset_current_tenant(token)
+
+
+def _make_person(email: str, role: str = "normal") -> People:
+    now = timezone.now()
+    return cast(
+        People,
+        People.objects.create(
+            id=f"person-{email.split('@')[0]}",
+            email=email,
+            display_name=email.split("@")[0].title(),
+            role=role,
+            tier="internal",
+            entity_access=[],
+            scopes=[],
+            agents=[],
+            status="active",
+            monitoring_tier="standard",
+            created_at=now,
+            updated_at=now,
+            tenant_id=DEFAULT_TENANT,
+            is_workspace_admin=1 if role in ("staff", "superadmin") else 0,
+        ),
+    )
 
 
 @pytest.fixture
 def person(db: Any) -> People:
-    return cast(People, People.objects.create(email="alice@example.com", role="normal"))
+    return _make_person("alice@example.com")
 
 
 @pytest.fixture
 def staff(db: Any) -> People:
-    return cast(People, People.objects.create(email="staff@example.com", role="staff"))
+    return _make_person("staff@example.com", role="staff")
 
 
 # ---------- no credentials ----------
@@ -147,6 +175,7 @@ def test_hub_session_cookie_resolves_user(person: People) -> None:
     Session.objects.create(
         token="abc123",
         person=person,
+        created_at=timezone.now(),
         expires_at=timezone.now() + timedelta(days=7),
     )
     request = RequestFactory().get("/x")
@@ -162,6 +191,7 @@ def test_hub_session_expired_raises(person: People) -> None:
     Session.objects.create(
         token="expired",
         person=person,
+        created_at=timezone.now(),
         expires_at=timezone.now() - timedelta(days=1),
     )
     request = RequestFactory().get("/x")

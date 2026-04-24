@@ -4,7 +4,7 @@
 
 COMPOSE := docker compose -f local-dev/docker-compose.yml
 
-.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-TKT-018 verify-TKT-019 verify-TKT-020 verify-TKT-021 verify-TKT-022 verify-ticket
+.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-TKT-018 verify-TKT-019 verify-TKT-020 verify-TKT-021 verify-TKT-022 verify-TKT-023 verify-ticket
 
 local-up:
 	python local-dev/caddy/build_caddyfile.py
@@ -187,6 +187,37 @@ verify-TKT-022:
 			npm --prefix local-dev/playwright exec playwright -- test \
 				--config local-dev/playwright/playwright.config.ts \
 				local-dev/playwright/tickets/TKT-022.spec.ts
+
+verify-TKT-023:
+	npm --prefix local-dev/playwright ci
+	@set -eu; \
+		vite_pid=""; \
+		cleanup() { \
+			if [ -n "$$vite_pid" ]; then kill "$$vite_pid" >/dev/null 2>&1 || true; fi; \
+			$(MAKE) local-down >/dev/null 2>&1 || true; \
+		}; \
+		trap cleanup EXIT; \
+		POSTGRES_PORT=15432 \
+		REDIS_PORT=16379 \
+		CADDY_PORT=18081 \
+		MOCK_LEGACY_PORT=18787 \
+		DJANGO_PORT=18082 \
+		DEV_BYPASS_AUTH_AS_EMAIL=staff@local.test \
+			$(MAKE) local-up; \
+		$(MAKE) local-migrate; \
+		$(MAKE) local-seed; \
+		( cd ../solid-sheep && exec npm run dev -- --host 127.0.0.1 --port 5173 ) \
+			>/tmp/hub-tkt023-vite.log 2>&1 & \
+		vite_pid="$$!"; \
+		for _ in $$(seq 1 60); do \
+			if curl -fsS http://localhost:5173 >/dev/null 2>&1; then break; fi; \
+			sleep 1; \
+		done; \
+		curl -fsS http://localhost:5173 >/dev/null; \
+		TKT023_API_BASE=http://localhost:18081 \
+			npm --prefix local-dev/playwright exec playwright -- test \
+				--config local-dev/playwright/playwright.config.ts \
+				local-dev/playwright/tickets/TKT-023.spec.ts
 
 verify-ticket:
 	@test -n "$(TKT)" || (echo "usage: make verify-ticket TKT=TKT-XXX" && exit 2)

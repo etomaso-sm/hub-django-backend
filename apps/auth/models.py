@@ -66,3 +66,14 @@ class UserTenants(models.Model):
     class Meta:
         db_table = "user_tenants"
         unique_together = (("user_email", "tenant_id"),)
+
+
+class Session(models.Model):
+    token = models.TextField(primary_key=True)
+    person = models.ForeignKey(People, models.DO_NOTHING)
+    created_at = models.DateTimeField()
+    expires_at = models.DateTimeField()
+    user_agent = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = "sessions"

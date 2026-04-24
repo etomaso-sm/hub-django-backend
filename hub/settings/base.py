@@ -139,6 +139,7 @@ REST_FRAMEWORK: dict[str, object] = {
 PUBLIC_URL_PATTERNS: list[str] = [
     "/api/health",
     "/api/health/*",
+    "/api/auth/login",
     "/api/signup",
     "/api/waitlist",
     "/api/onboarding/waitlist",
