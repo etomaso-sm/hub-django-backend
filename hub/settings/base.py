@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "apps.common",
 ]
 
 MIDDLEWARE = [
@@ -78,5 +79,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# DRF envelope renderer + exception handler land in TKT-002.
-REST_FRAMEWORK: dict[str, object] = {}
+REST_FRAMEWORK: dict[str, object] = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "apps.common.renderers.HubJSONRenderer",
+    ],
+    "EXCEPTION_HANDLER": "apps.common.exceptions.hub_exception_handler",
+}
