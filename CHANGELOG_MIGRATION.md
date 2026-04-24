@@ -1,5 +1,6 @@
 # Migration Changelog
 
+- TKT-017: Added local Playwright harness, helpers, example spec, and per-ticket verify template.
 - TKT-015: Added contract-diff helper with unified JSON diffs and volatile field support.
 - TKT-014: Added manifest fixture coverage gate and deterministic golden fixtures for the current manifest.
 - TKT-013: Added fixture capture CLI with PII scrubbing, volatile field stripping, and SSE capture tests.

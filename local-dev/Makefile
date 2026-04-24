@@ -1,6 +1,6 @@
 # Convenience wrapper for local-dev commands.
 
-.PHONY: reload-routing verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015
+.PHONY: reload-routing verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-ticket
 
 reload-routing:
 	$(MAKE) -C .. reload-routing
@@ -19,3 +19,9 @@ verify-TKT-014:
 
 verify-TKT-015:
 	$(MAKE) -C .. verify-TKT-015
+
+verify-TKT-017:
+	$(MAKE) -C .. verify-TKT-017
+
+verify-ticket:
+	$(MAKE) -C .. verify-ticket TKT=$(TKT)

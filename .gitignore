@@ -58,3 +58,7 @@ Thumbs.db
 
 # Docker
 .docker/
+
+# Node / Playwright local tooling
+node_modules/
+local-dev/playwright/failures/

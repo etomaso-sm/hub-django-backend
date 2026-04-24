@@ -4,7 +4,7 @@
 
 COMPOSE := docker compose -f local-dev/docker-compose.yml
 
-.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015
+.PHONY: local-up local-down local-logs local-shell local-migrate local-seed reload-routing verify-TKT-010 verify-TKT-011 verify-TKT-012 verify-TKT-013 verify-TKT-014 verify-TKT-015 verify-TKT-017 verify-ticket
 
 local-up:
 	python local-dev/caddy/build_caddyfile.py
@@ -55,3 +55,15 @@ verify-TKT-014:
 
 verify-TKT-015:
 	pytest tests/contract/test_template.py
+
+verify-TKT-017:
+	npm --prefix local-dev/playwright ci
+	npm --prefix local-dev/playwright exec playwright -- test --config local-dev/playwright/playwright.config.ts local-dev/playwright/tickets/TKT-EXAMPLE.spec.ts
+
+verify-ticket:
+	@test -n "$(TKT)" || (echo "usage: make verify-ticket TKT=TKT-XXX" && exit 2)
+	npm --prefix local-dev/playwright ci
+	$(MAKE) local-up
+	$(MAKE) local-migrate
+	$(MAKE) local-seed
+	npm --prefix local-dev/playwright exec playwright -- test --config local-dev/playwright/playwright.config.ts local-dev/playwright/tickets/$(TKT).spec.ts
